@@ -1,0 +1,70 @@
+server:
+  port: 8080
+
+logging:
+  level:
+    '[org.springframework.cloud.gateway]': DEBUG 
+    '[org.springframework.security]': DEBUG 
+    '[org.springframework.web.reactive.function.client]': TRACE 
+
+spring:
+  cloud:
+    gateway:
+      routes:
+      - id: item
+        uri: http://localhost:8081
+        predicates:
+        - Path=/item/{segment}
+        filters:
+        - SetPath=/{segment}
+      - id: employee
+        uri: http://localhost:8082
+        predicates:
+        - Path=/employee/{segment}
+        filters:
+        - SetPath=/{segment}
+  security:
+    oauth2:
+      client:
+        provider:
+          # 認可サーバごとに設定する
+          authServer:
+            # 認可サーバのトークンエンドポイント
+            token-uri: http://localhost:9090
+            # 認可サーバの認可エンドポイント
+            authorization-uri: http://localhost:9090
+            # ユーザ情報が提供されるエンドポイント
+            user-info-uri: http://localhost:9090
+            # userInfoエンドポイントでuserIdを表す属性名を設定する
+            user-name-attribute: 
+            # 認可サーバのベースURL OIDCの構成エンドポイントのアクセス先
+            #このURLのでは、以下のパスのいづれかがサポートされている必要がある
+            # /issuer/.well-known/openid-configuration
+            # /.well-known/openid-configuration/issuer
+            # /.well-known/oauth-authorization-server/issuer
+            #issuer-uri: 
+            # IDトークンのJWSの検証に利用する暗号化キーを取得するURI
+            jwk-set-uri:
+            # UserInfoエンドポイントにリクエストする際にアクセストークンを設定する場所(header, from, query) 
+            user-info-authentication-method: header
+        registration:
+          authServer:
+            # 認可サーバに登録しているこのクライアントのID
+            client-id: 
+            # 認可サーバに登録しているこのクライアントのパスワード
+            client-secret: 
+            # 認可サーバのクライアントの認証方式(basic, post, none)
+            client-authentication-method: 
+            # OAuth2の認可方式を設定する（authorization_code, client_credentials, password）
+            authorization-grant-type: 
+            # 認可サーバが認可した後にリダイレクトさせるこのクライアントのURI
+            redirect-uri: 
+            # 認可リクエストで要求するスコープ
+            scope:
+            - 
+            # このクライアント名。認可サーバに送信され、認可ページとかに表示されたりする
+            client-name: 
+            # 関連づけるproviderのid
+            provider: 
+            
+          
