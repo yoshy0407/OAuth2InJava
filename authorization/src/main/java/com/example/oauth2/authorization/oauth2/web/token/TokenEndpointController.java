@@ -3,7 +3,6 @@ package com.example.oauth2.authorization.oauth2.web.token;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -13,21 +12,22 @@ import com.example.oauth2.authorization.oauth2.domain.client.OAuth2ClientApplica
 import com.example.oauth2.authorization.oauth2.domain.token.TokenEndpointService;
 import com.example.oauth2.authorization.oauth2.exception.NoRollbackException;
 import com.example.oauth2.authorization.oauth2.exception.OAuth2ClientException;
-import com.example.oauth2.authorization.oauth2.exception.OAuth2TokenException;
+import com.example.oauth2.authorization.oauth2.exception.token.OAuth2TokenException;
 import com.example.oauth2.authorization.oauth2.web.token.model.ErrorResponse;
 import com.fasterxml.jackson.databind.JsonNode;
+
 
 @RestController
 public class TokenEndpointController {
 
 	private final OAuth2ClientApplicationService clientService;
 	
-	private final TokenEndpointService service;
+	private final TokenEndpointService tokenService;
 	
 	public TokenEndpointController(
-			TokenEndpointService service, 
+			TokenEndpointService tokenService, 
 			OAuth2ClientApplicationService clientService) {
-		this.service = service;
+		this.tokenService = tokenService;
 		this.clientService = clientService;
 	}
 	
@@ -36,29 +36,20 @@ public class TokenEndpointController {
 	@PostMapping("/oauth2/token")
 	public String token(TokenEndpointRequest req, @RequestHeader("Authorization") Optional<String> authorization) 
 			throws OAuth2ClientException, OAuth2TokenException, NoRollbackException {
-		clientAuthenticate(req, authorization);
-		JsonNode json = this.service.generateToken(req);
+		clientService.authenticate(authorization, req.getClientId(), req.getClientSecret());
+		JsonNode json = this.tokenService.generateToken(req);
 		return json.toString();
 		
 	}
 	
-	private void clientAuthenticate(TokenEndpointRequest req, Optional<String> authorization) throws OAuth2ClientException {
-		
-		if (authorization.isPresent()) {
-			this.clientService.authenticateBasic(authorization.get());
-			return;
-		}
-		if (StringUtils.hasLength(req.getClientId())) {
-			this.clientService.authenticate(req.getClientId(), req.getClientSecret());
-		}
-	}
-	
-	@ExceptionHandler({OAuth2TokenException.class, OAuth2ClientException.class, NoRollbackException.class})
+	@ExceptionHandler({OAuth2TokenException.class})
 	public ResponseEntity<ErrorResponse> handleOAuth2TokenException(OAuth2TokenException ex) {
 		ErrorResponse res = new ErrorResponse();
-		res.setError(ex.getMessage());
-		
-		return ResponseEntity.status(ex.getHttpStatus())
+		res.setError(ex.errorCode().code());
+		res.setErrorDescription(ex.getMessage());
+
+		//:TODO INVALID_CLIENTは、WW-Authenticationヘッダーを返さなければならない
+		return ResponseEntity.status(ex.errorCode().getHttpStatus())
 				.body(res);
 	}
 }

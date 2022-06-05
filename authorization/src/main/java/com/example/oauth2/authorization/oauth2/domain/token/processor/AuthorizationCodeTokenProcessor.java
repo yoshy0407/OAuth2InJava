@@ -2,23 +2,23 @@ package com.example.oauth2.authorization.oauth2.domain.token.processor;
 
 import java.util.Optional;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+
 import com.example.oauth2.authorization.oauth2.domain.token.TokenDomainService;
+import com.example.oauth2.authorization.oauth2.domain.token.generator.AccessToken;
 import com.example.oauth2.authorization.oauth2.domain.token.util.TokenResponseBuilder;
 import com.example.oauth2.authorization.oauth2.domain.token.value.GrantType;
-import com.example.oauth2.authorization.oauth2.exception.OAuth2TokenException;
-import com.example.oauth2.authorization.oauth2.value.Message;
-import com.example.oauth2.authorization.oauth2.value.Scope;
+import com.example.oauth2.authorization.oauth2.exception.token.OAuth2TokenException;
 import com.example.oauth2.authorization.oauth2.web.token.TokenEndpointRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
-public class AuthorizationCodeTokenProcessor implements TokenProcessor {
+public class AuthorizationCodeTokenProcessor extends AbstractTokenProcessor {
 
 	private final TokenDomainService tokenDomainService;
 	
@@ -26,36 +26,31 @@ public class AuthorizationCodeTokenProcessor implements TokenProcessor {
 	
 	public AuthorizationCodeTokenProcessor(
 			TokenDomainService tokenDomainService,
-			ObjectMapper objectMapper) {
+			ObjectMapper objectMapper,
+			MessageSource messageSource) {
+		super(GrantType.AUTHORIZATION_CODE, messageSource);
 		this.tokenDomainService = tokenDomainService;
 		this.objectMapper = objectMapper;
 	}
 	
 	@Override
-	public boolean supports(GrantType grantType) throws OAuth2TokenException {
-		if (grantType == null) {
-			throw new OAuth2TokenException(HttpStatus.BAD_REQUEST, Message.MSG1001.resolveMessage("grant_type"));
-		}
-		return grantType.equals(GrantType.AUTHORIZATION_CODE);
-	}
-
-	@Override
 	public JsonNode process(TokenEndpointRequest req) throws OAuth2TokenException {
+		requestParamNotEmpty(req.getCode(), "code");
 		this.tokenDomainService.authorizationCodeClientCheck(req);
 		UserDetails userDetails = getUserDetails();
-		Scope scope = Scope.fromList(req.getScope());
-		String accessTokenStr = 
+		AccessToken accessToken = 
 				this.tokenDomainService.generateAccessToken(
-						req.getClientId(), userDetails, Optional.ofNullable(scope));
+						req.getClientId(), userDetails, Optional.ofNullable(req.getScope()));
 		String refreshTokenStr = 
 				this.tokenDomainService.generateRefreshToken(
-						req.getClientId(), userDetails, Optional.ofNullable(scope));
+						req.getClientId(), userDetails, Optional.ofNullable(req.getScope()));
 		
 		return TokenResponseBuilder.authorizationCode(objectMapper)
-				.accessToken(accessTokenStr)
-				.tokenType("Bearer")
+				.accessToken(accessToken.getAccessToken())
+				.tokenType(accessToken.getTokenType())
+				.expiresIn(accessToken.getTokenLifeTime())
 				.refreshToken(refreshTokenStr)
-				.scope(scope.toString())
+				.scope(req.getScope().toString())
 				.build();
 	}
 	

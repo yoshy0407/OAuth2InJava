@@ -12,6 +12,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.example.oauth2.authorization.oauth2.domain.authorize.value.ResponseType;
 import com.example.oauth2.authorization.oauth2.domain.token.TokenDomainService;
+import com.example.oauth2.authorization.oauth2.domain.token.generator.AccessToken;
 import com.example.oauth2.authorization.oauth2.exception.OAuth2AuthorizationException;
 import com.example.oauth2.authorization.oauth2.value.Message;
 import com.example.oauth2.authorization.oauth2.value.Scope;
@@ -48,13 +49,13 @@ public class TokenAuthorizationProcessor implements AuthorizationProcessor {
 
 		Scope scopeVal = Scope.fromList(scope);
 		UserDetails userDetails = getUserDetails();
-		String accessTokenStr = 
+		AccessToken accessToken = 
 				this.tokenDomainService.generateAccessToken(req.getClientId(), userDetails, Optional.of(scopeVal));
 		
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(req.getRedirectUri());
 		builder
-			.queryParam("access_token", accessTokenStr)
-			.queryParam("token_type", "Bearer")
+			.queryParam("access_token", accessToken.getAccessToken())
+			.queryParam("token_type", accessToken.getTokenType())
 			.queryParam("scope", scopeVal.toString());
 			
 		if (StringUtils.hasLength(req.getState())) {

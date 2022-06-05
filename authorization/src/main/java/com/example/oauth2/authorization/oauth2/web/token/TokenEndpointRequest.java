@@ -2,9 +2,9 @@ package com.example.oauth2.authorization.oauth2.web.token;
 
 import java.beans.ConstructorProperties;
 import java.net.URI;
-import java.util.List;
 
 import com.example.oauth2.authorization.oauth2.domain.token.value.GrantType;
+import com.example.oauth2.authorization.oauth2.value.Scope;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -38,7 +38,16 @@ public class TokenEndpointRequest {
 			String password,
 			String refreshToken,
 			String scope) {
-		
+		this.clientId = clientId;
+		this.clientSecret = clientSecret;
+		this.grantType = grantType;
+		this.code = code;
+		this.redirectUri = redirectUri;
+		this.codeVerifier = codeVerifier;
+		this.username = username;
+		this.password = password;
+		this.refreshToken = refreshToken;
+		this.scope = new Scope(scope);
 	}
 	
 	//クライアントの認証をボディで実施する場合
@@ -74,7 +83,7 @@ public class TokenEndpointRequest {
 	//リソースオーナー・パスワード・クレデンシャルズフロー 任意
 	//クライアントクレデンシャルズフロー 任意
 	//リフレッシュトークンフロー 任意
-	private List<String> scope;
+	private Scope scope;
 
 	
 }

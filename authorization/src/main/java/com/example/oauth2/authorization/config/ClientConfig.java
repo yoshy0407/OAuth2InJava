@@ -13,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.example.oauth2.authorization.oauth2.domain.client.InMemoryOAuth2ClientRepository;
 import com.example.oauth2.authorization.oauth2.domain.client.OAuth2Client;
 import com.example.oauth2.authorization.oauth2.domain.client.OAuth2ClientRepository;
+import com.example.oauth2.authorization.oauth2.domain.client.value.ClientAuthMethod;
+import com.example.oauth2.authorization.oauth2.domain.token.value.GrantType;
 import com.example.oauth2.authorization.oauth2.value.Scope;
 
 @Configuration
@@ -29,15 +31,17 @@ public class ClientConfig {
 		List<URI> uris = new ArrayList<>();
 		uris.add(URI.create("http://localhost:9090/callback"));
 
-		OAuth2Client client = 
-				OAuth2Client.newInstance(
-						"test-client", 
-						"test-client-pass", 
-						null,
-						uris, 
-						new Scope("foo bar hoge"),
-						passwordEncoder);
-
+		List<GrantType> granttypes = new ArrayList<>();
+		granttypes.add(GrantType.AUTHORIZATION_CODE);
+		granttypes.add(GrantType.CLIENT_CREDENTIALS);
+		granttypes.add(GrantType.PASSWORD);
+		granttypes.add(GrantType.REFRESH_TOKEN);
+		
+		OAuth2Client client =
+				OAuth2Client.createClient(
+						"test-client", "test-client", null, null, "test-client-pass", uris, new Scope("foo bar hoge")
+						, ClientAuthMethod.CLIENT_SECRET_BASIC, granttypes, passwordEncoder);
+				
 		return new InMemoryOAuth2ClientRepository(client);
 	}
 }

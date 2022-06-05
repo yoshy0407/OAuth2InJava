@@ -8,8 +8,11 @@ import org.springframework.util.Base64Utils;
 public class UUIDAccessTokenGenerator implements AccessTokenGenerator {
 
 	@Override
-	public String generate(UserDetails userDetails) {
-		return Base64Utils.encodeToString(UUID.randomUUID().toString().getBytes()); 
+	public AccessToken generate(UserDetails userDetails) {
+		String token = Base64Utils.encodeToString(UUID.randomUUID().toString().getBytes()); 
+		AccessToken accessToken = new AccessToken();
+		accessToken.setAccessToken(token);
+		return accessToken;
 	}
 
 }
