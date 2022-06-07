@@ -5,6 +5,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Component;
 
+import com.example.oauth2.authorization.oauth2.domain.authorize.spi.AuthorizeRequestRepository;
+
 @Component
 public class InMemoryAuthorizeRequestRepository implements AuthorizeRequestRepository {
 

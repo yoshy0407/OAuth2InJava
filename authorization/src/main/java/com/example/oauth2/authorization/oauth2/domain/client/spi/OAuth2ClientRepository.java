@@ -1,6 +1,8 @@
-package com.example.oauth2.authorization.oauth2.domain.client;
+package com.example.oauth2.authorization.oauth2.domain.client.spi;
 
 import java.util.Optional;
+
+import com.example.oauth2.authorization.oauth2.domain.client.OAuth2Client;
 
 public interface OAuth2ClientRepository {
 

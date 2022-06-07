@@ -12,6 +12,7 @@ public class UUIDAccessTokenGenerator implements AccessTokenGenerator {
 		String token = Base64Utils.encodeToString(UUID.randomUUID().toString().getBytes()); 
 		AccessToken accessToken = new AccessToken();
 		accessToken.setAccessToken(token);
+		accessToken.setTokenType("Bearer");
 		return accessToken;
 	}
 

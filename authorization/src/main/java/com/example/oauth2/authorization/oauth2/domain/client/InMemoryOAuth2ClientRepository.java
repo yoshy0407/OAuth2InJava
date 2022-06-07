@@ -3,6 +3,8 @@ package com.example.oauth2.authorization.oauth2.domain.client;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.example.oauth2.authorization.oauth2.domain.client.spi.OAuth2ClientRepository;
+
 public class InMemoryOAuth2ClientRepository implements OAuth2ClientRepository {
 
 	private final ConcurrentHashMap<String, OAuth2Client> storeMap

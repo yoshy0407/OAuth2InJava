@@ -19,11 +19,11 @@ public class TokenResponseBuilder {
 
 	private String tokenType;
 
-	private Optional<Long> expiresIn;
+	private Optional<Long> expiresIn = Optional.empty();
 
-	private Optional<String> refreshToken;
+	private Optional<String> refreshToken = Optional.empty();
 
-	private Optional<String> scope;
+	private Optional<String> scope = Optional.empty();
 
 	public TokenResponseBuilder(ObjectMapper objectMapper, Consumer<ObjectNode> checkConsumer) {
 		this.objectMapper = objectMapper;
@@ -57,12 +57,12 @@ public class TokenResponseBuilder {
 
 	public JsonNode build() {
 		ObjectNode json = this.objectMapper.createObjectNode();
-		if (StringUtils.hasLength(accessToken)) {
+		if (!StringUtils.hasLength(accessToken)) {
 			throw new IllegalArgumentException("access_tokenは設定する必要があります");
 		}
 		json.put("access_token", this.accessToken);
-		if (StringUtils.hasLength(tokenType)) {
-			throw new IllegalArgumentException("token＿typeは設定する必要があります");
+		if (!StringUtils.hasLength(tokenType)) {
+			throw new IllegalArgumentException("token_typeは設定する必要があります");
 		}
 		json.put("token_type", this.tokenType);
 		expiresIn.ifPresent(s -> json.put("expires_in", s));
@@ -84,7 +84,7 @@ public class TokenResponseBuilder {
 		return new TokenResponseBuilder(
 				objectMapper, 
 				j -> {
-					if (StringUtils.hasLength(j.get("refresh_token").asText())) {
+					if (!StringUtils.hasLength(j.get("refresh_token").asText())) {
 						throw new IllegalArgumentException("クライアント・クレデンシャルフローでは、リフレッシュトークンを設定できません。");
 					}
 				});

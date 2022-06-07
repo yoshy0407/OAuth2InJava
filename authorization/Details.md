@@ -13,3 +13,11 @@
 | 取り消しエンドポイント | `/oauth2/token/revoke` |
 | JWKエンドポイント | `/oauth2/jwks` |
 | 動的クライアント登録エンドポイント | `/oauth2/client/register` |
+
+
+## 動作テストメモ
+### リソースオーナー・パスワード・クレデンシャルズフロー
+#### トークン取得
+```
+curl -i -H "Authorization: " -X POST http://localhost:9090/oauth2/token -d "grant_type=password&username=test&password=password"
+```

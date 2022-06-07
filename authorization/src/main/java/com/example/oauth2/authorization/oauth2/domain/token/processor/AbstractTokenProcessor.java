@@ -21,7 +21,7 @@ public abstract class AbstractTokenProcessor implements TokenProcessor {
 	@Override
 	public boolean supports(GrantType grantType) throws OAuth2TokenException {
 		requestParamNotNull(grantType, "grant_type");
-		return grantType.equals(GrantType.AUTHORIZATION_CODE);
+		return grantType.equals(this.grantType);
 	}
 
 	protected <T> void requestParamNotNull(T obj, String propertyName) throws OAuth2TokenException {

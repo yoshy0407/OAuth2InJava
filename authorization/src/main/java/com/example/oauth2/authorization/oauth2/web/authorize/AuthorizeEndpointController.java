@@ -4,15 +4,14 @@ import java.net.URI;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import com.example.oauth2.authorization.oauth2.domain.authorize.AuthorizeEndpointService;
-import com.example.oauth2.authorization.oauth2.domain.client.OAuth2ClientApplicationService;
+import com.example.oauth2.authorization.oauth2.domain.authorize.AuthorizeErrorUriBuilder;
+import com.example.oauth2.authorization.oauth2.domain.authorize.DefaultAuthorizeApplicationService;
+import com.example.oauth2.authorization.oauth2.domain.client.OAuth2ClientDomainService;
 import com.example.oauth2.authorization.oauth2.exception.OAuth2AuthorizationException;
-import com.example.oauth2.authorization.oauth2.exception.OAuth2ClientException;
 import com.example.oauth2.authorization.oauth2.web.authorize.model.ClientInfo;
 
 @Controller
@@ -20,14 +19,11 @@ public class AuthorizeEndpointController {
 
 	private static final String REQ_ATTR = "authReq";
 
-	private final OAuth2ClientApplicationService clientService;
-
-	private final AuthorizeEndpointService authorizeService;
+	private final DefaultAuthorizeApplicationService authorizeService;
 
 	public AuthorizeEndpointController(
-			OAuth2ClientApplicationService clientService, 
-			AuthorizeEndpointService authorizeService) {
-		this.clientService = clientService;
+			OAuth2ClientDomainService clientService, 
+			DefaultAuthorizeApplicationService authorizeService) {
 		this.authorizeService = authorizeService;
 	}
 
@@ -35,8 +31,8 @@ public class AuthorizeEndpointController {
 	public ModelAndView authorize(AuthorizeEndpointRequest req, ModelAndView mav, HttpSession session) {
 
 		try {
-			this.clientService.checkClient(req.getClientId(), req.getRedirectUri(), req.getScope());
-		} catch (OAuth2ClientException ex) {
+			this.authorizeService.checkClient(req);
+		} catch (OAuth2AuthorizationException ex) {
 			mav.addObject("error", ex.getMessage());
 			mav.setViewName("error");
 			return mav;			
@@ -47,7 +43,9 @@ public class AuthorizeEndpointController {
 		ClientInfo client = new ClientInfo();
 		client.setClientId(req.getClientId());
 		client.setClientUri(req.getRedirectUri());
-		client.setScopes(req.getScope().toList());
+		if (req.getScope().isPresent()) {
+			client.setScopes(req.getScope().get().toList());			
+		}
 		mav.addObject("client", client);
 
 		mav.setViewName("approve");
@@ -71,15 +69,9 @@ public class AuthorizeEndpointController {
 
 		if (model.getApprove().equalsIgnoreCase("Approve")) {
 
-			URI redirectUri = null;
-			try {
-				this.authorizeService.authorize(req, model.getScope());
-				mav.setViewName(String.format("redirect:%s", redirectUri));
-				return mav;
-			} catch (OAuth2AuthorizationException ex) {
-				mav.setViewName(buildErrorRedirectUri(req, ex.getMessage()));
-				return mav;
-			}
+			URI redirectUri = this.authorizeService.authorize(req);
+			mav.setViewName(String.format("redirect:%s", redirectUri));
+			return mav;
 		} else {
 			mav.setViewName(buildErrorRedirectUri(req, "access_denied"));
 			return mav;
@@ -87,9 +79,12 @@ public class AuthorizeEndpointController {
 	}
 
 	private String buildErrorRedirectUri(AuthorizeEndpointRequest req, String error) {
-		String retUri = UriComponentsBuilder.fromUri(req.getRedirectUri())
-				.queryParam("error", "access_denied")
-				.toUriString();
-		return String.format("redirect:%s", retUri);
+		AuthorizeErrorUriBuilder builder =AuthorizeErrorUriBuilder.accessDenied(req.getRedirectUri())
+				.errorDescription("拒否されました。");
+		if (StringUtils.hasLength(req.getState())) {
+			builder.state(req.getState());
+		}
+		
+		return String.format("redirect:%s", builder.toUriString());
 	}
 }

@@ -1,6 +1,8 @@
-package com.example.oauth2.authorization.oauth2.domain.token;
+package com.example.oauth2.authorization.oauth2.domain.token.spi;
 
 import java.util.Optional;
+
+import com.example.oauth2.authorization.oauth2.domain.token.Token;
 
 public interface TokenRepository {
 

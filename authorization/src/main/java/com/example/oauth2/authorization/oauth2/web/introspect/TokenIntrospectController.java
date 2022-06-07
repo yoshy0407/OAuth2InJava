@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.oauth2.authorization.oauth2.domain.client.OAuth2ClientApplicationService;
-import com.example.oauth2.authorization.oauth2.domain.token.TokenEndpointService;
+import com.example.oauth2.authorization.oauth2.domain.client.spi.OAuth2ClientApplicationService;
+import com.example.oauth2.authorization.oauth2.domain.token.spi.TokenApplicationService;
 import com.example.oauth2.authorization.oauth2.exception.token.OAuth2TokenException;
 import com.example.oauth2.authorization.oauth2.web.token.model.ErrorResponse;
 
@@ -20,11 +20,11 @@ public class TokenIntrospectController {
 
 	private final OAuth2ClientApplicationService clientAppService;
 	
-	private final TokenEndpointService tokenEndpointService;
+	private final TokenApplicationService tokenEndpointService;
 	
 	public TokenIntrospectController(
 			OAuth2ClientApplicationService clientAppService,
-			TokenEndpointService tokenEndpointService) {
+			TokenApplicationService tokenEndpointService) {
 		this.clientAppService = clientAppService;
 		this.tokenEndpointService = tokenEndpointService;
 	}

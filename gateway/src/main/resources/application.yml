@@ -48,9 +48,9 @@ spring:
             # UserInfoエンドポイントにリクエストする際にアクセストークンを設定する場所(header, from, query) 
             user-info-authentication-method: header
         registration:
-          authServer:
+          Server:
             # 認可サーバに登録しているこのクライアントのID
-            client-id: 
+            client-id: gateway
             # 認可サーバに登録しているこのクライアントのパスワード
             client-secret: 
             # 認可サーバのクライアントの認証方式(basic, post, none)

@@ -38,7 +38,6 @@ public abstract class AbstractJwk implements Jwk {
 	@Override
 	public JWSHeader createHeader() {
 		return new JWSHeader.Builder(algorithm)
-				.jwk(jwk)
 				.build();
 	}
 }

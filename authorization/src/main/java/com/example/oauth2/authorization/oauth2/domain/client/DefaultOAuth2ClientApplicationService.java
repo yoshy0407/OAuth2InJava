@@ -6,16 +6,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.context.MessageSource;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.StringUtils;
 
+import com.example.oauth2.authorization.oauth2.domain.client.spi.OAuth2ClientApplicationService;
+import com.example.oauth2.authorization.oauth2.domain.client.spi.OAuth2ClientRepository;
 import com.example.oauth2.authorization.oauth2.domain.client.value.BasicAuthorization;
 import com.example.oauth2.authorization.oauth2.domain.client.value.ClientAuthMethod;
 import com.example.oauth2.authorization.oauth2.domain.token.value.GrantType;
-import com.example.oauth2.authorization.oauth2.exception.OAuth2ClientException;
 import com.example.oauth2.authorization.oauth2.exception.client.ClientRegistrationErrorCode;
 import com.example.oauth2.authorization.oauth2.exception.client.ClientRegistrationException;
 import com.example.oauth2.authorization.oauth2.exception.token.OAuth2TokenException;
@@ -23,7 +23,7 @@ import com.example.oauth2.authorization.oauth2.exception.token.TokenErrorCode;
 import com.example.oauth2.authorization.oauth2.value.Scope;
 
 @Service
-public class OAuth2ClientApplicationService {
+public class DefaultOAuth2ClientApplicationService implements OAuth2ClientApplicationService {
 
 	private final OAuth2ClientRepository clientRepository;
 
@@ -31,7 +31,7 @@ public class OAuth2ClientApplicationService {
 
 	private final MessageSource messageSource;
 
-	public OAuth2ClientApplicationService(
+	public DefaultOAuth2ClientApplicationService(
 			OAuth2ClientRepository clientRepository, 
 			PasswordEncoder passwordEncoder,
 			MessageSource messageSource) {
@@ -40,6 +40,7 @@ public class OAuth2ClientApplicationService {
 		this.messageSource = messageSource;
 	}
 
+	@Override
 	public RegisterResult register(
 			String clientName,
 			URI logoUri,
@@ -69,23 +70,7 @@ public class OAuth2ClientApplicationService {
 		return new RegisterResult(clientId, clientSecret, System.currentTimeMillis(), 0);
 	}
 	
-	public void checkClient(String clientId, URI redirectUri, Scope scope) throws OAuth2ClientException {
-		Optional<OAuth2Client> optClient = this.clientRepository.get(clientId);
-		if (optClient.isEmpty()) {
-			throw new OAuth2ClientException(HttpStatus.BAD_REQUEST, "Unknown client");			
-		}
-
-		OAuth2Client client = optClient.get();
-
-		if (!client.verifyRedirectUri(redirectUri)) {
-			throw new OAuth2ClientException(HttpStatus.BAD_REQUEST, "Invalid redirect URI");		
-		}
-		
-		if (client.containScope(scope)) {
-			throw new OAuth2ClientException(HttpStatus.BAD_REQUEST, "invalid_scope");
-		}			
-	}
-
+	@Override
 	public void authenticate(Optional<String> authorization, String bodyClientId, String bodyClientSecret) throws OAuth2TokenException {
 		ClientAuthMethod authMethod = resolveAuthMethod(authorization, bodyClientId, bodyClientSecret);
 
@@ -126,18 +111,6 @@ public class OAuth2ClientApplicationService {
 			throw new OAuth2TokenException(TokenErrorCode.INVALID_CLIENT, messageSource);
 		}
 		return;
-	}
-
-	public void checkScope(String clientId, Scope scope) throws OAuth2ClientException {
-		Optional<OAuth2Client> optClient = this.clientRepository.get(clientId);
-		if (optClient.isPresent()) {
-			OAuth2Client client = optClient.get();
-			if (!client.containScope(scope)) {
-				throw new OAuth2ClientException(HttpStatus.BAD_REQUEST, "Unknown client");				
-			}	
-		} else {
-			throw new OAuth2ClientException(HttpStatus.BAD_REQUEST, "Unknown client");
-		}
 	}
 
 }

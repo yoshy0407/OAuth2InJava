@@ -15,6 +15,11 @@ import com.example.oauth2.authorization.oauth2.value.Scope;
 import lombok.Getter;
 import lombok.ToString;
 
+/**
+ * OAuthのクライアントを表すエンティティクラスです
+ * @author yoshiokahiroshi
+ *
+ */
 @ToString
 public class OAuth2Client {
 
@@ -110,7 +115,7 @@ public class OAuth2Client {
 			List<GrantType> grantTypes,
 			PasswordEncoder passwordEncoder) throws IllegalArgumentException {
 		return of(clientId, clientName, ClientType.AUTH_CLIENT, 
-				clientUri, logoUri, rawClientSecret, redirectUris, scope, authMethod, grantTypes);
+				clientUri, logoUri, passwordEncoder.encode(rawClientSecret), redirectUris, scope, authMethod, grantTypes);
 	}
 
 	public static OAuth2Client createResource(
@@ -125,6 +130,6 @@ public class OAuth2Client {
 			List<GrantType> grantTypes,
 			PasswordEncoder passwordEncoder) throws IllegalArgumentException {
 		return of(clientId, clientName, ClientType.RESOURCE, 
-				clientUri, logoUri, rawClientSecret, redirectUris, scope, authMethod, grantTypes);
+				clientUri, logoUri, passwordEncoder.encode(rawClientSecret), redirectUris, scope, authMethod, grantTypes);
 	}
 }

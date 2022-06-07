@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.oauth2.authorization.oauth2.domain.client.OAuth2ClientApplicationService;
 import com.example.oauth2.authorization.oauth2.domain.client.RegisterResult;
+import com.example.oauth2.authorization.oauth2.domain.client.spi.OAuth2ClientApplicationService;
 import com.example.oauth2.authorization.oauth2.exception.client.ClientRegistrationException;
 
 @RestController

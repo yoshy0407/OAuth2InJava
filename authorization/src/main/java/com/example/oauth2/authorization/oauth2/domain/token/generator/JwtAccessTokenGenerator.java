@@ -11,7 +11,7 @@ import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.Payload;
 
 
-public abstract class JwtAccessTokenGenerator implements AccessTokenGenerator {
+public class JwtAccessTokenGenerator implements AccessTokenGenerator {
 
 	private final long tokenLifeSecond;
 	

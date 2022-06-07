@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.example.oauth2.authorization.oauth2.domain.token.processor.TokenProcessor;
+import com.example.oauth2.authorization.oauth2.domain.token.spi.TokenApplicationService;
+import com.example.oauth2.authorization.oauth2.domain.token.spi.TokenRepository;
 import com.example.oauth2.authorization.oauth2.exception.NoRollbackException;
 import com.example.oauth2.authorization.oauth2.exception.UnsupportedGrantType;
 import com.example.oauth2.authorization.oauth2.exception.token.OAuth2TokenException;
@@ -15,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @Service
-public class TokenEndpointService {
+public class DefaultTokenApplicationService implements TokenApplicationService {
 
 	private final List<TokenProcessor> processors;
 
@@ -23,7 +25,7 @@ public class TokenEndpointService {
 	
 	private final ObjectMapper objectMapper;
 	
-	public TokenEndpointService(
+	public DefaultTokenApplicationService(
 			List<TokenProcessor> processors,
 			TokenRepository tokenRepository,
 			ObjectMapper objectMapper) {
@@ -32,6 +34,7 @@ public class TokenEndpointService {
 		this.objectMapper = objectMapper;
 	}
 
+	@Override
 	public JsonNode generateToken(TokenEndpointRequest req) 
 			throws OAuth2TokenException, NoRollbackException {
 		boolean supported = false;
@@ -39,6 +42,7 @@ public class TokenEndpointService {
 		for (TokenProcessor processor : this.processors) {
 			if (processor.supports(req.getGrantType())) {
 				json = processor.process(req);
+				supported = true;
 			}
 		}
 		
@@ -48,6 +52,7 @@ public class TokenEndpointService {
 		return json;
 	}
 	
+	@Override
 	public JsonNode checkToken(String token) {
 		Optional<Token> optToken = this.tokenRepository.get(token);
 		if (optToken.isPresent()) {
@@ -69,6 +74,7 @@ public class TokenEndpointService {
 		return objectNode;		
 	}
 	
+	@Override
 	public void revokeToken(String tokenStr, String clientId) {
 		Optional<Token> optToken = this.tokenRepository.get(tokenStr);
 		if (optToken.isPresent()) {

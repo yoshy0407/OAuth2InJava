@@ -1,7 +1,5 @@
 package com.example.oauth2.authorization.oauth2.domain.token.processor;
 
-import java.util.Optional;
-
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,10 +38,10 @@ public class AuthorizationCodeTokenProcessor extends AbstractTokenProcessor {
 		UserDetails userDetails = getUserDetails();
 		AccessToken accessToken = 
 				this.tokenDomainService.generateAccessToken(
-						req.getClientId(), userDetails, Optional.ofNullable(req.getScope()));
+						req.getClientId(), userDetails, req.getScope());
 		String refreshTokenStr = 
 				this.tokenDomainService.generateRefreshToken(
-						req.getClientId(), userDetails, Optional.ofNullable(req.getScope()));
+						req.getClientId(), userDetails, req.getScope());
 		
 		return TokenResponseBuilder.authorizationCode(objectMapper)
 				.accessToken(accessToken.getAccessToken())

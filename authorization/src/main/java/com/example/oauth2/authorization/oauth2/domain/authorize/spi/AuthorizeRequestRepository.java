@@ -1,6 +1,8 @@
-package com.example.oauth2.authorization.oauth2.domain.authorize;
+package com.example.oauth2.authorization.oauth2.domain.authorize.spi;
 
 import java.util.Optional;
+
+import com.example.oauth2.authorization.oauth2.domain.authorize.AuthorizeRequest;
 
 
 public interface AuthorizeRequestRepository {

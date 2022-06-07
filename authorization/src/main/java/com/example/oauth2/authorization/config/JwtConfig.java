@@ -4,7 +4,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.example.oauth2.authorization.oauth2.domain.token.generator.AccessTokenGenerator;
-import com.example.oauth2.authorization.oauth2.domain.token.generator.UUIDAccessTokenGenerator;
+import com.example.oauth2.authorization.oauth2.domain.token.generator.DefaultJwtPayloadGenerator;
+import com.example.oauth2.authorization.oauth2.domain.token.generator.JwtAccessTokenGenerator;
+import com.example.oauth2.authorization.oauth2.domain.token.generator.JwtPayloadGenerator;
 import com.example.oauth2.authorization.oauth2.domain.token.jwk.InMemoryJwkStore;
 import com.example.oauth2.authorization.oauth2.domain.token.jwk.JwkFactory;
 import com.example.oauth2.authorization.oauth2.domain.token.jwk.JwkStore;
@@ -30,8 +32,15 @@ public class JwtConfig {
 	}
 	
 	@Bean
-	public AccessTokenGenerator accessTokenGenerator() {
-		return new UUIDAccessTokenGenerator();
+	public JwtPayloadGenerator jwtPayloadGenerator() {
+		return new DefaultJwtPayloadGenerator();
+	}
+	
+	@Bean
+	public AccessTokenGenerator accessTokenGenerator(JwkStore jwkStore, JwtPayloadGenerator jwtPayloadGenerator) {
+		//return new UUIDAccessTokenGenerator();
+		//30分
+		return new JwtAccessTokenGenerator(1800, jwkStore, jwtPayloadGenerator, "jwt-rsa-key");
 	}
 	
 }

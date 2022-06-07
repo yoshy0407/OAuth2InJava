@@ -3,6 +3,7 @@ package com.example.oauth2.authorization.oauth2.web.authorize;
 import java.beans.ConstructorProperties;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 import com.example.oauth2.authorization.oauth2.domain.authorize.value.ResponseType;
 import com.example.oauth2.authorization.oauth2.value.Scope;
@@ -28,7 +29,7 @@ public class AuthorizeEndpointRequest {
 			List<ResponseType> responseType,
 			String clientId,
 			URI redirectUri,
-			Scope scope,
+			Optional<Scope> scope,
 			String state,
 			String codeChallenge,
 			String codeChallengeMethod) {
@@ -51,7 +52,7 @@ public class AuthorizeEndpointRequest {
 	private URI redirectUri;
 	
 	//任意
-	private Scope scope;
+	private Optional<Scope> scope;
 	
 	//推奨
 	private String state;

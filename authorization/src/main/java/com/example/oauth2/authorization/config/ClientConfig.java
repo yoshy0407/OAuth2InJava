@@ -12,7 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.oauth2.authorization.oauth2.domain.client.InMemoryOAuth2ClientRepository;
 import com.example.oauth2.authorization.oauth2.domain.client.OAuth2Client;
-import com.example.oauth2.authorization.oauth2.domain.client.OAuth2ClientRepository;
+import com.example.oauth2.authorization.oauth2.domain.client.spi.OAuth2ClientRepository;
 import com.example.oauth2.authorization.oauth2.domain.client.value.ClientAuthMethod;
 import com.example.oauth2.authorization.oauth2.domain.token.value.GrantType;
 import com.example.oauth2.authorization.oauth2.value.Scope;

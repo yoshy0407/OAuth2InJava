@@ -8,10 +8,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.oauth2.authorization.oauth2.domain.client.OAuth2ClientApplicationService;
-import com.example.oauth2.authorization.oauth2.domain.token.TokenEndpointService;
+import com.example.oauth2.authorization.oauth2.domain.client.spi.OAuth2ClientApplicationService;
+import com.example.oauth2.authorization.oauth2.domain.token.spi.TokenApplicationService;
 import com.example.oauth2.authorization.oauth2.exception.NoRollbackException;
-import com.example.oauth2.authorization.oauth2.exception.OAuth2ClientException;
 import com.example.oauth2.authorization.oauth2.exception.token.OAuth2TokenException;
 import com.example.oauth2.authorization.oauth2.web.token.model.ErrorResponse;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -22,10 +21,10 @@ public class TokenEndpointController {
 
 	private final OAuth2ClientApplicationService clientService;
 	
-	private final TokenEndpointService tokenService;
+	private final TokenApplicationService tokenService;
 	
 	public TokenEndpointController(
-			TokenEndpointService tokenService, 
+			TokenApplicationService tokenService, 
 			OAuth2ClientApplicationService clientService) {
 		this.tokenService = tokenService;
 		this.clientService = clientService;
@@ -35,7 +34,7 @@ public class TokenEndpointController {
 	//Basic認証
 	@PostMapping("/oauth2/token")
 	public String token(TokenEndpointRequest req, @RequestHeader("Authorization") Optional<String> authorization) 
-			throws OAuth2ClientException, OAuth2TokenException, NoRollbackException {
+			throws OAuth2TokenException, NoRollbackException {
 		clientService.authenticate(authorization, req.getClientId(), req.getClientSecret());
 		JsonNode json = this.tokenService.generateToken(req);
 		return json.toString();
