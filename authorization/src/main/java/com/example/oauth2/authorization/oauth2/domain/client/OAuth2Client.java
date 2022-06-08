@@ -44,6 +44,14 @@ public class OAuth2Client {
 	
 	private List<GrantType> grantTypes;
 	
+	public boolean isClient() {
+		return clientType.equals(ClientType.AUTH_CLIENT);
+	}
+
+	public boolean isResource() {
+		return clientType.equals(ClientType.RESOURCE);
+	}
+
 	public boolean matchSecret(String rawSecret, PasswordEncoder passwordEncoder) {
 		return passwordEncoder.matches(rawSecret, this.encodedClientSecret);
 	}
@@ -53,10 +61,6 @@ public class OAuth2Client {
 	}
 	
 	public boolean containScope(Scope scope) {
-		return this.scope.contains(scope);
-	}
-	
-	public boolean containScope(List<String> scope) {
 		return this.scope.contains(scope);
 	}
 	
