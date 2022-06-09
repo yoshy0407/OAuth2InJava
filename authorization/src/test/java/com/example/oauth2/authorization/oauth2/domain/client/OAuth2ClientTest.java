@@ -1,7 +1,6 @@
 package com.example.oauth2.authorization.oauth2.domain.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.URI;
 
